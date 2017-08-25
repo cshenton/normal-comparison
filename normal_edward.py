@@ -26,6 +26,10 @@ y = NormalWithSoftplusScale(
     scale=tf.tile(inv_softplus_sigma, [N])
 )
 
+
+## Variational Inference
+print('Variational based approach')
+
 # Posterior distribution families
 q_mu = Normal(
     loc = tf.Variable([0.0]),
@@ -43,6 +47,25 @@ data = {y: y_train}
 # Inference
 inference = ed.KLqp(latent_vars, data)
 inference.run(n_samples=5, n_iter=10000)
+
+print(q_mu.mean().eval())
+print(q_inv_softplus_sigma.mean().eval())
+
+
+## Sampling Methods
+print('Sampling based approach')
+
+# Posterior distribution families
+q_mu = Empirical(params=tf.Variable(tf.zeros([500, 1])))
+q_inv_softplus_sigma = Empirical(params=tf.Variable(tf.zeros([500, 1])))
+
+# Inference arguments
+latent_vars = {mu: q_mu, inv_softplus_sigma: q_inv_softplus_sigma}
+data = {y: y_train}
+
+# Inference
+inference = ed.HMC(latent_vars, data)
+inference.run()
 
 print(q_mu.mean().eval())
 print(q_inv_softplus_sigma.mean().eval())

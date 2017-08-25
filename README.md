@@ -66,16 +66,6 @@ from the root of the repository.
 
 # Results
 
-## Edward
-
-- Great API
-- Posterior Definition is a little verbose
-- Strugges to converge on scale parameter
-
-Edward has by far my favourite API of the three. So it was unfortunate that
-the estimated scale parameter varied so much from run to run. This is as compared to the ADVI routine in PyMC3, which produced mean estimates of
-the scale parameter within 0.01 of eachother from run to run.
-
 ## PyMC3
 
 - No surprises
@@ -110,3 +100,18 @@ I'll probably not be investing time into writing stan code, because the
 Theano and Tensorflow backends of PyMC3 and Edward come with great tooling,
 and benefit from the externality of a wider community than just people doing
 bayesian inference.
+
+## Edward
+
+- Great API
+- Posterior Definition is a little verbose
+- VI Strugges to converge on scale parameter
+- Sampling methods don't seem to work
+
+Edward has by far my favourite API of the three. So it was unfortunate that
+the estimated scale parameter varied so much from run to run. This is as compared to the ADVI routine in PyMC3, which produced mean estimates of
+the scale parameter within 0.01 of eachother from run to run.
+
+In addition, I could not get the sampling methods to work. This should
+serve more as an indication of how thin the documentation is on sampling
+methods in Edward, rather than the underlying library's correctness.

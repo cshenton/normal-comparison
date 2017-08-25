@@ -26,7 +26,7 @@ with basic_model:
     nuts_trace = pm.sample(2000)
     pm.summary(nuts_trace)
 
-    print('ADVI based approach')
+    print('Variational based approach')
     result = pm.fit(150000, method='advi')
     advi_trace = result.sample(2000)
     pm.summary(advi_trace)
