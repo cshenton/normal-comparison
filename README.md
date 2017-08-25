@@ -100,7 +100,7 @@ This will likely change in the next major release, but means it's harder
 to be agnostic to your method of inference within the framework.
 
 However, stan still feels best suited to research, and lacks the production
-tooling that that tensorflow and theano backends give edward and pymc3.
+tooling that the tensorflow and theano backends give edward and pymc3.
 
 ## Edward
 
@@ -108,7 +108,7 @@ tooling that that tensorflow and theano backends give edward and pymc3.
 - VI Strugges to converge on scale parameter
 - Sampling methods don't seem to work
 
-I really like the high level desin of edward's API. So it was unfortunate
+I really like the high level design of edward's API. So it was unfortunate
 that the estimated scale parameter varied so much from run to run. This
 is as compared to the ADVI routine in PyMC3, which produced mean estimates
 of the scale parameter within 0.01 of eachother from run to run.
