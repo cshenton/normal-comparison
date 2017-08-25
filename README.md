@@ -20,7 +20,7 @@ a simple example.
 
 ## Prior Distributions and Model
 
-Edward has fewer available distributions that the alternatives. In particular, there are no Half Normal or Half Cauchy distributions, which are typical priors
+Edward has fewer available distributions than the alternatives. In particular, there are no Half Normal or Half Cauchy distributions, which are typical priors
 for a normal scale parameter. In addition, there are known issues in edward
 with [using an inverse gamma distribution](https://discourse.edwardlib.org/t/a-toy-normal-model-failed-klqp-and-why/253/2) when doing variational inference.
 
@@ -37,12 +37,10 @@ inv_softplus_sigma ~ normal(0.0, 1.0)
 y ~ normal(mu, softplus(inv_softplus_sigma))
 ```
 
-And where using VI, I set the family of posterior distributions for `mu`
-and `inv_softplus_sigma` to be the family of normal distributions. In
-particular, when using variational inference, I initialise the distributions
-at the values of the priors. This is not done in the edward tutorials, and
-seems to have the effect of providing unintentionally informative priors,
-which is the motivation for this comparison.
+And where using variational inference, I set the family of posterior distributions for `mu` and `inv_softplus_sigma` to be the family of normal distributions, or whatever the software default is otherwise.
+
+If the package requires explicitly initialising the posterior family, I
+initialise it at the value of the priors.
 
 ## Installation
 
@@ -62,7 +60,10 @@ To run a particular example, just run (for example):
 python normal_edward.py
 ```
 
-from the root of the repository.
+from the root of the repository. The output format is not consistent between
+the packages, but rather than coercing them into a similar format, I leave
+them as they are, as an illustration of how easy it is to inspect results
+in each package.
 
 # Results
 
@@ -84,33 +85,39 @@ Edward.
 
 ## PyStan
 
-- Painful compile times slow debugging
+- Compile times slow down the debugging process
 - Both sampling and VI recover parameters
 - VI is currently experimental, no nice output format
 - Model code is both terse and readable
 
-Stan's advantage is portability. Model specifications can work it the command
+Stan's advantage is portability. Model specifications can work with the command
 line, python, R, and Julia front ends. This is great for research, but a
 pain for writing unit tested code that's going to run on a server.
 
-In addition, it is the most focussed on sampling based approaches, and as
-a result its Variational Bayes estimator is currently experimental.
+Out of the three, it is the most focussed on sampling based approaches,
+and as a result its Variational Bayes estimator is currently experimental.
+This will likely change in the next major release, but means it's harder
+to be agnostic to your method of inference within the framework.
 
-I'll probably not be investing time into writing stan code, because the
-Theano and Tensorflow backends of PyMC3 and Edward come with great tooling,
-and benefit from the externality of a wider community than just people doing
-bayesian inference.
+However, stan still feels best suited to research, and lacks the production
+tooling that that tensorflow and theano backends give edward and pymc3.
 
 ## Edward
 
-- Great API
 - Posterior Definition is a little verbose
 - VI Strugges to converge on scale parameter
 - Sampling methods don't seem to work
 
-Edward has by far my favourite API of the three. So it was unfortunate that
-the estimated scale parameter varied so much from run to run. This is as compared to the ADVI routine in PyMC3, which produced mean estimates of
-the scale parameter within 0.01 of eachother from run to run.
+I really like the high level desin of edward's API. So it was unfortunate
+that the estimated scale parameter varied so much from run to run. This
+is as compared to the ADVI routine in PyMC3, which produced mean estimates
+of the scale parameter within 0.01 of eachother from run to run.
+
+The linear and mixed effects regression examples on the project's website
+simply omit uncertainty in the scale parameter, so do not have this issue.
+This was actually the motivation for writing this comparison in the first
+place. Either the KLqp algorithm has difficulty dealing with scale parameter
+uncertainty, or I've implemented things incorrectly.
 
 In addition, I could not get the sampling methods to work. This should
 serve more as an indication of how thin the documentation is on sampling
