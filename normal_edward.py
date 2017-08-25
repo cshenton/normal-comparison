@@ -9,37 +9,40 @@ from edward.models import (
     NormalWithSoftplusScale,
 )
 
-MU = 0.0
+MU = 6.0
 SIGMA = 1.5
-T = 100000
-
-def sample_data(sample_size):
-    return np.random.normal(MU, SIGMA, sample_size)
+N = 1000
 
 # Data
-y_train = sample_data(T)
+y_train = np.random.normal(MU, SIGMA, N)
 
 # Params (defined as 1d priors)
-mu = NormalWithSoftplusScale(loc=[0.0], scale=[5.0])
-sigma = NormalWithSoftplusScale(loc=[0.0], scale=[5.0])
+mu = Normal(loc=[0.0], scale=[5.0])
+inv_softplus_sigma = Normal(loc=[0.0], scale=[1.0])
 
 # Model (defined as vector over full dataset)
-y = NormalWithSoftplusScale(loc=tf.tile(mu, [T]), scale=tf.tile(sigma, [T]))
+y = NormalWithSoftplusScale(
+    loc=tf.tile(mu, [N]),
+    scale=tf.tile(inv_softplus_sigma, [N])
+)
 
 # Posterior distribution families
-q_mu = NormalWithSoftplusScale(
+q_mu = Normal(
     loc = tf.Variable([0.0]),
     scale = tf.Variable([5.0]),
 )
-q_sigma = NormalWithSoftplusScale(
+q_inv_softplus_sigma = Normal(
     loc = tf.Variable([0.0]),
-    scale = tf.Variable([5.0]),
+    scale = tf.Variable([1.0]),
 )
 
 # Inference arguments
-latent_vars = {mu: q_mu, sigma: q_sigma}
+latent_vars = {mu: q_mu, inv_softplus_sigma: q_inv_softplus_sigma}
 data = {y: y_train}
 
 # Inference
 inference = ed.KLqp(latent_vars, data)
-inference.run(n_it
+inference.run(n_samples=5, n_iter=10000)
+
+print(q_mu.mean().eval())
+print(q_inv_softplus_sigma.mean().eval())

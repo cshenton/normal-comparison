@@ -1,24 +1,32 @@
 """Recovering normal distribution parameters in pymc3."""
 import numpy as np
 import pymc3 as pm
+import theano.tensor as tt
 
-MU = 0.0
-SIGMA = 1.5
+MU = 6.0
+SIGMA = 1.5 # sigma = softplus(inv_softplus_sigma)
 N = 1000
 
-def sample_data(sample_size):
-    return np.random.normal(MU, SIGMA, sample_size)
-
 # Data
-y_train = sample_data(T)
+y_train = np.random.normal(MU, SIGMA, N)
 
 basic_model = pm.Model()
 
 with basic_model:
+    # Priors
+    mu = pm.Normal('mu', mu=0.0, sd=5.0)
+    inv_softplus_sigma = pm.Normal('inv_softplus_sigma', mu=0.0, sd=1.0)
 
-    # Priors for unknown model parameters
-    mu = pm.Normal('alpha', mu=0, sd=5)
-    sigma = pm.HalfNormal('sigma', sd=2.5)
+    # Model
+    y = pm.Normal(
+        'y', mu=mu, sd=tt.nnet.softplus(inv_softplus_sigma), observed=y_train
+    )
 
-    # Likelihood (sampling distribution) of observations
-    y = pm.Normal('y', mu=mu, sd=sigma, observed=y_train)
+    print('Sampling based approach')
+    nuts_trace = pm.sample(2000)
+    pm.summary(nuts_trace)
+
+    print('ADVI based approach')
+    result = pm.fit(150000, method='advi')
+    advi_trace = result.sample(2000)
+    pm.summary(advi_trace)
