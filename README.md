@@ -108,10 +108,13 @@ tooling that the tensorflow and theano backends give edward and pymc3.
 - VI Strugges to converge on scale parameter
 - Sampling methods don't seem to work
 
-I really like the high level design of edward's API. So it was unfortunate
-that the estimated scale parameter varied so much from run to run. This
-is as compared to the ADVI routine in PyMC3, which produced mean estimates
-of the scale parameter within 0.01 of eachother from run to run.
+I really like the high level design of Edward's API. Keeping track of the
+computational graph implicitly, rather than having to explicitly use a model
+context manager like PyMC3 is a nice touch.
+
+Out of the box, Edward's KLqp algorithm tends to vary around the correct
+scale parameter rather than strictly converging to it, at least as compared
+to PyMC3's ADVI algorithm.
 
 The linear and mixed effects regression examples on the project's website
 simply omit uncertainty in the scale parameter, so do not have this issue.
@@ -120,5 +123,5 @@ place. Either the KLqp algorithm has difficulty dealing with scale parameter
 uncertainty, or I've implemented things incorrectly.
 
 In addition, I could not get the sampling methods to work. This should
-serve more as an indication of how thin the documentation is on sampling
-methods in Edward, rather than the underlying library's correctness.
+serve more as an indication of how thorough the documentation is compared
+to more mature libraries.
