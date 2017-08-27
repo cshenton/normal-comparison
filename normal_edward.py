@@ -14,27 +14,21 @@ SIGMA = 1.5
 N = 1000
 
 # Data
-y_train = np.random.normal(MU, SIGMA, [N, 1])
+y_train = np.random.normal(MU, SIGMA, [N])
 
-# Params (defined as 1d priors)
-mu = Normal(loc=[0.0], scale=[5.0])
-inv_softplus_sigma = Normal(loc=[0.0], scale=[1.0])
-
-# Model (defined as vector over full dataset)
+# Model
+mu = Normal(loc=0.0, scale=5.0)
+inv_softplus_sigma = Normal(loc=0.0, scale=1.0)
 y = NormalWithSoftplusScale(loc=mu, scale=inv_softplus_sigma, sample_shape=N)
 
-
-## Variational Inference
-print('Variational based approach')
-
-# Posterior distribution families
+## Variational Model with VI
 q_mu = Normal(
-    loc = tf.Variable([0.0]),
-    scale = tf.Variable([5.0]),
+    loc = tf.Variable(0.0),
+    scale = tf.Variable(5.0),
 )
 q_inv_softplus_sigma = Normal(
-    loc = tf.Variable([0.0]),
-    scale = tf.Variable([1.0]),
+    loc = tf.Variable(0.0),
+    scale = tf.Variable(1.0),
 )
 
 # Inference arguments
@@ -49,12 +43,11 @@ print(q_mu.mean().eval())
 print(q_inv_softplus_sigma.mean().eval())
 
 
-## Sampling Methods
-print('Sampling based approach')
+# Empirical Model with Sampler
 
 # Posterior distribution families
-q_mu = Empirical(params=tf.Variable(tf.random_normal([1000, 1])))
-q_inv_softplus_sigma = Empirical(params=tf.Variable(tf.random_normal([1000, 1])))
+q_mu = Empirical(params=tf.Variable(tf.random_normal([2000])))
+q_inv_softplus_sigma = Empirical(params=tf.Variable(tf.random_normal([2000])))
 
 # Inference arguments
 latent_vars = {mu: q_mu, inv_softplus_sigma: q_inv_softplus_sigma}
@@ -62,7 +55,7 @@ data = {y: y_train}
 
 # Inference
 inference = ed.HMC(latent_vars, data)
-inference.run()
+inference.run(step_size=0.003, n_steps=5)
 
-print(q_mu.mean().eval())
-print(q_inv_softplus_sigma.mean().eval())
+print(tf.reduce_mean(q_mu.params[1000:]).eval())
+print(tf.nn.softplus(tf.reduce_mean(q_inv_softplus_sigma.params[1000:])).eval())

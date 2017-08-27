@@ -122,6 +122,6 @@ This was actually the motivation for writing this comparison in the first
 place. Either the KLqp algorithm has difficulty dealing with scale parameter
 uncertainty, or I've implemented things incorrectly.
 
-In addition, I could not get the sampling methods to work. This should
-serve more as an indication of how thorough the documentation is compared
-to more mature libraries.
+Edward's HMC routine also works as expected after some tweaking with the
+step parameters. Credit to Dustin from the Edward discourse for helping
+me out with that one.
