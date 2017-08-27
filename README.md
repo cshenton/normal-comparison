@@ -13,10 +13,8 @@ deviation of the distribution.
 
 ## Sampling and Variational Inference
 
-For each library, I record both a sampling based approach and an ADVI based
-approach. By default, the libraries use different samplers and ADVI algorithms,
-but *a priori* I don't expect these to make much of a difference for such
-a simple example.
+I test both MCMC and Variational methods in each library. The libraries use different samplers and ADVI algorithms, but *a priori* I don't expect these
+to make much of a difference for such a simple example.
 
 ## Prior Distributions and Model
 
@@ -37,10 +35,13 @@ inv_softplus_sigma ~ normal(0.0, 1.0)
 y ~ normal(mu, softplus(inv_softplus_sigma))
 ```
 
-And where using variational inference, I set the family of posterior distributions for `mu` and `inv_softplus_sigma` to be the family of normal distributions, or whatever the software default is otherwise.
-
-If the package requires explicitly initialising the posterior family, I
-initialise it at the value of the priors.
+It is worth noting that this is similar to what PyMC3 does behind the scenes
+when we define a [bounded RV](https://pymc-devs.github.io/pymc3/notebooks/api_quickstart.html#Automatic-transforms-of-bounded-RVs).
+The difference being that PyMC allows us to define the prior on the bounded
+variable, whereas in Edward we have to define the prior on the unbounded
+RV that gets transformed into our scale parameter. Both allow expressiveness
+it terms of prior diffuseness, but I suspect edward's approach might cause
+a headache when using more complex priors, like spike-and-slab.
 
 ## Installation
 
@@ -80,8 +81,7 @@ distributions for ADVI.
 
 It also easily recovers the distribution parameters in both cases. It's
 a shame that PyMC3 doesn't use tensorflow for the backend, since compatibility
-with tooling like Keras and Tensorboard is one of the biggest pluses for
-Edward.
+with tooling like Tensorboard would be great.
 
 ## PyStan
 
@@ -104,9 +104,9 @@ tooling that the tensorflow and theano backends give edward and pymc3.
 
 ## Edward
 
-- Posterior Definition is a little verbose
-- VI Strugges to converge on scale parameter
-- Sampling methods don't seem to work
+- Explicitly defining the variational model is powerful if verbose.
+- VI bounces around scale out of the box, but finds the results.
+- HMC works after some tuning.
 
 I really like the high level design of Edward's API. Keeping track of the
 computational graph implicitly, rather than having to explicitly use a model
@@ -119,8 +119,8 @@ to PyMC3's ADVI algorithm.
 The linear and mixed effects regression examples on the project's website
 simply omit uncertainty in the scale parameter, so do not have this issue.
 This was actually the motivation for writing this comparison in the first
-place. Either the KLqp algorithm has difficulty dealing with scale parameter
-uncertainty, or I've implemented things incorrectly.
+place. I am informed that some tweaking with the underlying optimiser should
+fix this.
 
 Edward's HMC routine also works as expected after some tweaking with the
 step parameters. Credit to Dustin from the Edward discourse for helping
